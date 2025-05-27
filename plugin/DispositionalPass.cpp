@@ -5,6 +5,28 @@
 using namespace llvm;
 
 namespace {
+enum class Tag : uint8_t { Eps, I, J, Eta };
+
+static const Tag TAG_MUL[4][4] = {
+/*          ε      i        j        η   */
+/* ε */ {Tag::Eps, Tag::I,  Tag::J,  Tag::Eps},
+/* i */ {Tag::I,   Tag::Eta,Tag::Eps,Tag::I},
+/* j */ {Tag::J,   Tag::Eta,Tag::Eta,Tag::J},
+/* η */ {Tag::Eps, Tag::J,  Tag::I,  Tag::Eta}
+};
+
+inline Tag mul(Tag a, Tag b) { return TAG_MUL[(int)a][(int)b]; }
+
+
+struct TagBuilder {
+  Tag classify(const Instruction &Inst) const {
+    if (isa<LoadInst>(Inst))                return Tag::I;   // ascending read
+    if (isa<StoreInst>(Inst))               return Tag::J;   // descending write
+    if (isa<AllocaInst>(Inst) || Inst.isTerminator())
+                                             return Tag::Eta; // identity edges
+    return Tag::Eps;                                         // boundary default
+  }
+};
 
 
 struct DispositionalPass : public PassInfoMixin<DispositionalPass> {
