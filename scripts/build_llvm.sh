@@ -31,7 +31,6 @@ cmake -G Ninja "$SRC_DIR" \
       -fexperimental-new-pass-manager \
       -fpass-plugin=$PLUGIN \
       -mllvm -passes=dispositional-pass"
-
 # ---------------------------------------------------------------------------
 # 3.  Build every benchmark; tee stdout so we can grep CSV later
 # ---------------------------------------------------------------------------
