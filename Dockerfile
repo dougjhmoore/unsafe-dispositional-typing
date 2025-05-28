@@ -9,15 +9,14 @@ RUN add-apt-repository \
 # ---- essential packages, incl. LLVM 17 ------------------------------------
 
 
-@@
- RUN apt-get update && apt-get install -y \
--    clang-17 llvm-17 llvm-17-dev lld-17 llvm-17-tools \
--    libffi-dev libedit-dev libncurses-dev \
-+    clang-17 llvm-17 llvm-17-dev lld-17 llvm-17-tools \
-+    libffi-dev libedit-dev libncurses-dev \
-+    tcl8.6 expect \            # <-- only 6 MB total; satisfies sqlite3 tests
-     git cmake ninja-build python3 python3-pip wget curl time zip \
- && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+RUN apt-get update && apt-get install -y \
+    clang-17 llvm-17 llvm-17-dev lld-17 llvm-17-tools \
+    libffi-dev libedit-dev libncurses-dev \
+    tcl8.6 expect \
+    git cmake ninja-build python3 python3-pip wget curl time zip && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
 
 
 
