@@ -1,4 +1,3 @@
-cat > scripts/fetch_llvm.sh <<'EOF'
 #!/usr/bin/env bash
 set -euo pipefail
 
@@ -13,5 +12,3 @@ else
 fi
 
 echo "Fetch step complete."
-EOF
-

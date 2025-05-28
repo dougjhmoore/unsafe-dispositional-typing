@@ -9,9 +9,12 @@ RUN add-apt-repository \
 # ---- essential packages, incl. LLVM 17 ------------------------------------
 
 RUN apt-get update && apt-get install -y \
-    clang-17 llvm-17 llvm-17-dev lld-17 \
+    clang-17 llvm-17 llvm-17-dev lld-17 llvm-17-tools \
     libffi-dev libedit-dev libncurses-dev \
+    tcl tk expect                         \
     git cmake ninja-build python3 python3-pip wget curl time zip
+
+
 
 
 # build the Dispositional plug-in
