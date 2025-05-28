@@ -16,12 +16,6 @@ cmake -G Ninja "$SRC_DIR" \
   -DLLVM_USE_LINKER=lld \
   -DCMAKE_C_COMPILER=clang-17 \
   -DCMAKE_CXX_COMPILER=clang++-17 \
-  -DCMAKE_C_FLAGS="\
-    -fpass-plugin=$PLUGIN \
-    -fpass-plugin-arg=dispositional-pass" \
-  -DCMAKE_CXX_FLAGS="\
-    -fpass-plugin=$PLUGIN \
-    -fpass-plugin-arg=dispositional-pass"
 
 # 3. build & capture log -----------------------------------------------------
 ninja | tee /data/benchmarks/llvm/llvm_raw.log
