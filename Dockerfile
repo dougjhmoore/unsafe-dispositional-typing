@@ -1,14 +1,20 @@
 # Dockerfile
 FROM ubuntu:22.04
 
-# 1. use a faster mirror for apt
+# use a faster mirror for apt
 RUN sed -i \
       -e 's|http://archive\.ubuntu\.com/ubuntu|http://mirror.init7.net/ubuntu|g' \
       -e 's|http://security\.ubuntu\.com/ubuntu|http://mirror.init7.net/ubuntu|g' \
     /etc/apt/sources.list
+    
+# set environment variables to avoid prompts during package installation
+ENV DEBIAN_FRONTEND=noninteractive \
+    APT__Acquire__Retries=3         \
+    TZ=Etc/UTC
 
-# 2. install prerequisites
-RUN apt-get update && apt-get install -y --no-install-recommends \
+#  install prerequisites
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
       wget \
       gnupg \
       software-properties-common \
