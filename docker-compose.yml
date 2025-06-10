@@ -1,0 +1,43 @@
+services:
+  dispositional-analysis:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: dispositional-typing-analysis
+    
+    # Mount key directories for persistent results
+    volumes:
+      - ./results:/data/results:rw
+      - ./benchmarks:/data/benchmarks:rw
+      - ./scripts:/scripts:ro
+      - ./paper:/data/paper:ro
+      - ./plugin:/data/plugin-src:ro
+    
+    # Environment configuration
+    environment:
+      - LLVM_VERSION=17
+      - BUILD_TYPE=RelWithDebInfo
+      - ANALYSIS_OUTPUT=/data/results/dispositional_analysis.csv
+      - ENABLE_DETAILED_LOGGING=true
+    
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+          cpus: '2.0'
+        reservations:
+          memory: 1G
+          cpus: '0.5'
+    
+    # Simple command that calls a script
+    command: /scripts/zenodo_analysis.sh
+    
+    # Ensure clean exit
+    tty: true
+    stdin_open: true
+
+# Networks
+networks:
+  default:
+    name: dispositional-network

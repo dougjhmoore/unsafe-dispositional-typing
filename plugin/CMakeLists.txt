@@ -1,38 +1,40 @@
 cmake_minimum_required(VERSION 3.20)
-project(dispositional_plugin LANGUAGES C CXX)    #  <- C added
+project(dispositional_plugin LANGUAGES C CXX)
 
-
-# Locate LLVM (installed via apt llvm-17-dev inside Docker)
+# Locate LLVM
 find_package(LLVM 17 REQUIRED CONFIG)
 
-message(STATUS "Found LLVM in: ${LLVM_DIR}")
-list(APPEND CMAKE_MODULE_PATH "${LLVM_CMAKE_DIR}")
-include(AddLLVM)
+message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
+message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
 
-# Make LLVM headers visible
+# Add LLVM includes
 include_directories(SYSTEM ${LLVM_INCLUDE_DIRS})
-add_definitions(${LLVM_DEFINITIONS})
+separate_arguments(LLVM_DEFINITIONS_LIST NATIVE_COMMAND ${LLVM_DEFINITIONS})
+add_definitions(${LLVM_DEFINITIONS_LIST})
 
+# Create the plugin library
 add_library(DispositionalPass MODULE
     DispositionalPass.cpp
 )
 
+# Set compiler flags
+target_compile_features(DispositionalPass PRIVATE cxx_std_17)
+target_compile_options(DispositionalPass PRIVATE
+    -fno-rtti
+    -fPIC
+)
+
+# Don't link LLVM libraries for a simple plugin - just include headers
+# This avoids the zstd dependency issue
+
+# Set output properties
 set_target_properties(DispositionalPass PROPERTIES
-    COMPILE_FLAGS "-fno-rtti"
+    PREFIX ""
+    SUFFIX ".so"
 )
 
-llvm_map_components_to_libnames(REQ all)
-target_link_libraries(DispositionalPass PRIVATE ${REQ})
-        
-# helper macros
-
-add_library(DispositionalPlugin MODULE
-    DispositionalPass.cpp
-)
-
-set_target_properties(DispositionalPlugin PROPERTIES
-    COMPILE_FLAGS "-fno-rtti"
-)
-
-llvm_map_components_to_libnames(REQ all)
-target_link_libraries(DispositionalPlugin PRIVATE ${REQ})
+if(APPLE)
+    target_link_options(DispositionalPass PRIVATE 
+        -undefined dynamic_lookup
+    )
+endif()

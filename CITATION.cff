@@ -1,0 +1,17 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+  - family-names: "Moore"
+    given-names: "Douglas J. Huntington"
+title: "Dispositional Typing: Eliminating Unsafe Annotations - Implementation and Empirical Results"
+version: 1.0.0
+date-released: 2025-06-10
+url: "https://github.com/dougjhmoore/unsafe-dispositional-typing"
+abstract: "Complete implementation of dispositional typing using four-symbol algebra (ε, i, j, η) for memory safety verification through algebraic cycle commutation testing. Includes LLVM plugin, Docker environment, and empirical validation demonstrating that safe patterns have commuting cycles while unsafe patterns don't. Represents many decades of theoretical work validated through practical implementation."
+keywords:
+  - "memory safety"
+  - "compiler analysis" 
+  - "dispositional typing"
+  - "LLVM"
+  - "systems programming"
+license: MIT
