@@ -1,43 +1,83 @@
+# docker-compose.yml
+# IEEE TSE 2025 - Dispositional Typing Reproducibility
+
+version: '3.8'
+
 services:
-  dispositional-analysis:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: dispositional-typing-analysis
-    
-    # Mount key directories for persistent results
+  dispositional-typing:
+    build: .
+    container_name: dispositional-typing-ieee-tse
     volumes:
-      - ./results:/data/results:rw
-      - ./benchmarks:/data/benchmarks:rw
-      - ./scripts:/scripts:ro
-      - ./paper:/data/paper:ro
-      - ./plugin:/data/plugin-src:ro
-    
-    # Environment configuration
+      # Mount results directory to host for easy access
+      - ./results:/dispositional-typing/results
+      - ./data:/dispositional-typing/data
+    working_dir: /dispositional-typing
     environment:
-      - LLVM_VERSION=17
-      - BUILD_TYPE=RelWithDebInfo
-      - ANALYSIS_OUTPUT=/data/results/dispositional_analysis.csv
-      - ENABLE_DETAILED_LOGGING=true
-    
-    # Resource limits
-    deploy:
-      resources:
-        limits:
-          memory: 4G
-          cpus: '2.0'
-        reservations:
-          memory: 1G
-          cpus: '0.5'
-    
-    # Simple command that calls a script
-    command: /scripts/zenodo_analysis.sh
-    
-    # Ensure clean exit
+      - TERM=xterm-256color
+    # Keep container running for interactive use
     tty: true
     stdin_open: true
 
-# Networks
-networks:
-  default:
-    name: dispositional-network
+  # Quick analysis service (for reviewers in a hurry)
+  quick-analysis:
+    build: .
+    container_name: dispositional-typing-quick
+    volumes:
+      - ./data:/dispositional-typing/data
+    working_dir: /dispositional-typing
+    command: >
+      bash -c "
+      . venv/bin/activate &&
+      echo '🔬 Running quick scalability analysis...' &&
+      cd scripts/analysis/scalability &&
+      python scalability_analysis.py --output-dir ../../../data/scalability/ &&
+      echo '✅ Quick analysis complete! Results in data/scalability/' &&
+      echo '📊 Key results:' &&
+      cat ../../../data/scalability/analysis_report.txt &&
+      echo '' &&
+      echo '🖼️  Figure 1 generated: data/scalability/scalability_figure.png' &&
+      echo '📈 TikZ coordinates: data/scalability/tikz_coordinates.txt'
+      "
+
+  # Full evaluation service (for thorough reviewers)
+  full-evaluation:
+    build: .
+    container_name: dispositional-typing-full
+    volumes:
+      - ./data:/dispositional-typing/data
+      - ./evaluation:/dispositional-typing/evaluation
+    working_dir: /dispositional-typing
+    command: >
+      bash -c "
+      . venv/bin/activate &&
+      echo '🏗️  Clang plugin already built during container creation' &&
+      echo '🔬 Running full LLVM test suite evaluation...' &&
+      cd scripts/evaluation &&
+      ./driver.sh &&
+      echo '✅ Full evaluation complete!' &&
+      echo '📊 Results available in evaluation/ directory'
+      "
+
+  # Interactive development environment
+  interactive:
+    build: .
+    container_name: dispositional-typing-dev
+    volumes:
+      - .:/dispositional-typing
+    working_dir: /dispositional-typing
+    environment:
+      - TERM=xterm-256color
+    tty: true
+    stdin_open: true
+    command: >
+      bash -c "
+      . venv/bin/activate &&
+      echo '🐳 Dispositional Typing Development Environment Ready!' &&
+      echo '📋 Available commands:' &&
+      echo '  make analysis    - Run scalability analysis' &&
+      echo '  make evaluation  - Run full LLVM evaluation' &&
+      echo '  tree data/       - View generated results' &&
+      echo '  exit            - Leave container' &&
+      echo '' &&
+      /bin/bash
+      "

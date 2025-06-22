@@ -1,0 +1,67 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+*.egg-info/
+dist/
+build/
+
+# IDEs and editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Compiler outputs
+*.o
+*.so
+*.dylib
+*.exe
+*.out
+*.app
+
+# Logs and temporary files
+*.log
+*.tmp
+*.temp
+debug_build.sh
+build.log
+full_output.txt
+pass_output.txt
+
+# Generated analysis outputs
+/data/scalability/scalability_figure.png
+/data/scalability/timing_data.csv
+/data/scalability/analysis_report.txt
+/data/scalability/tikz_coordinates.txt
+
+# Evaluation results (keep structure, not data)
+/evaluation/*/build/
+/evaluation/*/*.csv
+/evaluation/*/*.json
+
+# Build directories
+build/
+cmake-build-*/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Project specific
+t.c
+empirical_results_summary.txt
+dispositional_analysis.csv
