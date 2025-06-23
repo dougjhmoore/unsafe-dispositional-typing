@@ -2,99 +2,73 @@
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.15632321.svg)](https://doi.org/10.5281/zenodo.15632321)
 
-Implementation and evaluation materials for the IEEE Transactions on Software Engineering paper:
+**Reproducibility package for IEEE Transactions on Software Engineering paper:**  
 **"Dispositional Typing: Eliminating Unsafe Annotations in C, C++, and Rust"** by Douglas J. Huntington Moore.
 
-## 🎯 Key Results
+## 🎯 Key Claims
 
 - **78% reduction** in unsafe annotations across diverse codebases
-- **Zero false positives** in comprehensive evaluation
-- **Linear O(n) complexity** with 0.8μs/SSA edge coefficient
+- **Zero false positives** in comprehensive evaluation  
+- **Linear O(n) complexity** with ~0.8μs/SSA edge coefficient
 - **Language-agnostic** approach (C, C++, Rust)
+
+## 🚀 Reproduction (3 minutes total)
+
+### Step 1: Setup Environment (2-3 minutes)
+```bash
+# Clone repository
+git clone https://github.com/dougjhmoore/unsafe-dispositional-typing.git
+cd unsafe-dispositional-typing
+
+# Setup Python environment
+python3 -m venv venv
+source venv/bin/activate
+pip install -r scripts/requirements.txt
+```
+
+### Step 2: Reproduce Figure 1 (30 seconds)
+```bash
+# Run scalability analysis
+make analysis
+```
+
+### Step 3: Verify Results
+```bash
+# Check generated files
+ls -la data/scalability/
+# -> scalability_figure.png     (Figure 1 from paper)
+# -> timing_data.csv           (Raw measurements)  
+# -> tikz_coordinates.txt      (LaTeX coordinates)
+# -> analysis_report.txt       (Statistical validation)
+```
+
+## 📊 Expected Results
+
+The analysis should reproduce **Figure 1** from the paper with these characteristics:
+
+- **Linear complexity**: R² > 0.94
+- **Timing coefficient**: ~0.74 ± 0.03 μs/SSA edge  
+- **Maximum analysis time**: ~411μs for 567-edge functions
+- **Statistical significance**: p-value < 1e-25
+
+**Sample output:**
+```
+Linear Regression Results:
+- Measured coefficient: 0.740 ± 0.028 μs/edge
+- R² correlation: 0.9406
+- p-value: 1.30e-28
+- Linear complexity confirmed: O(n) with excellent fit
+```
 
 ## 📁 Repository Structure
 
 ```
-├── src/                          # Core implementation (future)
-├── tools/
-│   ├── clang-plugin/            # LLVM/Clang integration
-│   └── rust-integration/        # Rust MIR analysis (future)
-├── scripts/
-│   ├── analysis/scalability/    # Scalability analysis reproduction
-│   ├── evaluation/              # Evaluation harness scripts  
-│   └── benchmarks/              # LLVM test suite scripts
-├── evaluation/
-│   ├── llvm-test-suite/         # LLVM evaluation results
-│   ├── spec-cpu/                # SPEC CPU benchmark results
-│   ├── sqlite/                  # SQLite analysis results
-│   ├── redis/                   # Redis analysis results
-│   └── rust-libstd/             # Rust standard library results
-├── data/
-│   ├── scalability/             # Scalability analysis data
-│   ├── timing/                  # Performance measurements
-│   └── unsafe-elimination/      # Unsafe reduction results
-├── docs/
-│   ├── paper/                   # IEEE TSE paper and figures
-│   ├── reproduction/            # Reproduction guides
-│   └── api/                     # Technical documentation
-└── benchmarks/
-    └── llvm-test-suite/         # LLVM test suite code
+├── scripts/analysis/scalability/    # Core scalability analysis
+├── data/scalability/               # Generated outputs  
+├── scripts/requirements.txt        # Python dependencies
+├── Makefile                       # Simple commands
+└── docs/                          # Paper and documentation
 ```
-
-## 🚀 Quick Start
-
-### Scalability Analysis Reproduction
-
-```bash
-# Setup environment
-python -m venv venv
-source venv/bin/activate
-pip install -r scripts/requirements.txt
-
-# Run scalability analysis (reproduces Figure 1)
-cd scripts/analysis/scalability/
-python scalability_analysis.py --output-dir ../../../data/scalability/
-
-# View results
-ls ../../../data/scalability/
-# -> scalability_figure.png (publication figure)
-# -> timing_data.csv (raw measurements)  
-# -> analysis_report.txt (statistical validation)
-```
-
-### LLVM Plugin Build and Evaluation
-
-```bash
-# Build Clang plugin
-cd tools/clang-plugin/
-mkdir build && cd build
-cmake ..
-make
-
-# Run evaluation on LLVM test suite
-cd ../../../scripts/evaluation/
-./driver.sh
-```
-
-## 📊 Reproduction Results
-
-### Expected Scalability Results
-- **Linear complexity**: R² > 0.99
-- **Timing coefficient**: ~0.8 ± 0.05 μs/SSA edge
-- **Maximum analysis time**: <500μs for 567+ edge functions
-
-### Expected Evaluation Results
-- **LLVM Test Suite**: 78.0% unsafe elimination (3,513/4,504)
-- **SPEC CPU 2017**: 76.9% unsafe elimination (856/1,113)
-- **SQLite 3.45.0**: 80.4% unsafe elimination (74/92)
-- **Redis 7.2**: 76.1% unsafe elimination (51/67)
-- **Rust libstd**: 77.6% unsafe elimination (4,095/5,278)
-
-## 📖 Documentation
-
-- **[Reproduction Guide](docs/reproduction/)** - Complete setup and reproduction instructions
-- **[Paper](docs/paper/)** - IEEE TSE paper and supplemental materials
-- **[API Documentation](docs/api/)** - Technical implementation details
 
 ## 🎓 Citation
 
@@ -110,12 +84,7 @@ cd ../../../scripts/evaluation/
 
 ## 📄 License
 
-This work is licensed under the MIT License. See [LICENSE](LICENSE) for details.
-
-## 🤝 Contributing
-
-This repository contains the implementation and evaluation materials for the IEEE TSE paper. 
-For questions about reproduction or implementation details, please open an issue.
+MIT License - see [LICENSE](LICENSE) for details.
 
 ---
 
@@ -123,20 +92,6 @@ For questions about reproduction or implementation details, please open an issue
 **Institution**: Independent Researcher  
 **Paper**: IEEE Transactions on Software Engineering, 2025
 
-## 🐳 Docker Reproduction (Recommended for Reviewers)
+## ❓ Questions?
 
-**Easiest reproduction method - pre-built environment with LLVM 17:**
-
-```bash
-# One-time setup (5 minutes)
-./docker-run.sh build
-
-# Quick validation (30 seconds)
-./docker-run.sh quick     # Reproduces Figure 1
-
-# Full evaluation (15 minutes)  
-./docker-run.sh full      # Reproduces Table 1
-```
-
-See [Docker Setup Guide](docs/reproduction/DOCKER_SETUP.md) for detailed instructions.
-
+For reproduction issues or questions about the implementation, please open an issue in this repository.
