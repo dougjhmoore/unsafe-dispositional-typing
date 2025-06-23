@@ -1,7 +1,0 @@
-=== LLVM Test Suite Build with Dispositional Pass ===
-✅ Using plugin: /usr/local/lib/llvm-plugins/DispositionalPass.so
-=== Configuring CMake ===
-Testing plugin load...
-clang (LLVM option parsing): Unknown command line argument '-passes=dispositional-pass'.  Try: 'clang (LLVM option parsing) --help'
-clang (LLVM option parsing): Did you mean '--pgso=dispositional-pass'?
-❌ Plugin failed to load
