@@ -1,4 +1,0 @@
-source_file,function_name,edges,cycles,commuting_cycles,safety_rating
-safe_memory.c,safe_memory_pattern,8,2,2,safe
-unsafe_dangling.c,unsafe_dangling_pointer,6,1,0,unsafe
-safe_complex.c,safe_complex_operations,34,6,6,safe

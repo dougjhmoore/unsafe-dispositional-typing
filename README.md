@@ -1,4 +1,4 @@
-# Dispositional Typing: Eliminating Unsafe Annotations in C, C++, and Rust
+# Dispositional Typing: Eliminating Unsafe Annotations in C, C++, and Rust.
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.15632321.svg)](https://doi.org/10.5281/zenodo.15632321)
 
