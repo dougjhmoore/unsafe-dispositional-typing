@@ -1,6 +1,6 @@
 # Dispositional Typing: Eliminating Unsafe Annotations in C, C++, and Rust.
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.15632321.svg)](https://doi.org/10.5281/zenodo.15632321)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.15734195.svg)](https://doi.org/10.5281/zenodo.15734195)
 
 **Reproducibility package for IEEE Transactions on Software Engineering paper:**  
 **"Dispositional Typing: Eliminating Unsafe Annotations in C, C++, and Rust"** by Douglas J. Huntington Moore.
@@ -78,7 +78,7 @@ Linear Regression Results:
   author={Moore, Douglas J. Huntington},
   journal={IEEE Transactions on Software Engineering},
   year={2025},
-  doi={10.5281/zenodo.15632321}
+  doi={10.5281/zenodo.15734195}
 }
 ```
 

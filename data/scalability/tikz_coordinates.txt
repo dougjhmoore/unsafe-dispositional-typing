@@ -1,0 +1,11 @@
+% TikZ coordinates for scalability figure
+% Data points:
+(0,6) (50,41) (85,69) (115,101) (150,105) (195,194) (225,171) (255,188) (295,242) (350,290) (450,403) (550,346) (567,411)
+
+% Linear fit:
+(0,9) (567,428)
+
+% Statistics:
+% Slope: 0.740 μs/edge
+% R²: 0.9406
+% Max time: 411.2 μs at 567 edges
