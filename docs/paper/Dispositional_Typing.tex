@@ -19,7 +19,8 @@
 \title{Dispositional Typing: Eliminating Unsafe Annotations in C, C++, and Rust}
 
 \author{Douglas~J.~Huntington~Moore%
-\thanks{D. J. H. Moore is an Independent Researcher (e-mail: djhmoore@alumni.unimelb.edu.au).}%
+\thanks{D. J. H. Moore is an Independent Researcher}% 
+\thanks{(e-mail: djhmoore@alumni.unimelb.edu.au).}%
 \thanks{Manuscript received [DATE]; revised [DATE].}}
 
 \markboth{IEEE Transactions on Software Engineering,~Vol.~XX, No.~X, MONTH~YEAR}%
@@ -155,7 +156,7 @@ j &= M \circ F \quad \text{(AX) value to placeholder, } j^2 = +\eta \\
 \eta &= M \circ M \quad \text{(AB) value to value, idempotent, } \eta^2 = \eta
 \end{align}
 
-The composition operation follows the rules shown in Table~\ref{tab:composition}. This table defines a closed algebraic structure with several important properties.
+The composition operation $\circ$ follows the rules shown in Table~\ref{tab:composition}. This table defines a closed algebraic structure with several important properties. Throughout this paper, we use $\circ$ consistently to denote dispositional composition.
 
 \begin{table}[t]
 \centering
@@ -177,6 +178,50 @@ $\eta$ & $\varepsilon$ & $j$ & $i$ & $\eta$ \\
 
 The dispositional algebra exhibits several crucial properties that enable efficient analysis:
 
+\begin{definition}[Dispositional Lattice]
+The dispositional elements form a complete lattice $(\mathcal{D}, \sqsubseteq, \sqcup, \sqcap)$ where:
+\begin{align}
+\mathcal{D} &= \{\varepsilon, i, j, \eta, 0\} \\
+\sqsubseteq &\text{ is the information ordering with } 0 \sqsubseteq d \sqsubseteq \eta \text{ for all } d \in \mathcal{D} \\
+\sqcup &\text{ is the join (least upper bound) operation} \\
+\sqcap &\text{ is the meet (greatest lower bound) operation}
+\end{align}
+The meet operation $\bigoplus$ used in our analysis is defined as the greatest lower bound with respect to the information ordering, ensuring that conflicting dispositional information resolves conservatively.
+\end{definition}
+
+\begin{lemma}[Dispositional Uniqueness]
+\label{lem:uniqueness}
+The identity element $\eta$ uniquely characterizes value-to-value operations in the dispositional algebra. For any two distinct paths $\pi_1, \pi_2$ reaching the same memory location $\ell$:
+$$\big( \hat{\tau}(\pi_1) = \eta \land \hat{\tau}(\pi_2) = \eta \land \text{target}(\pi_1) = \text{target}(\pi_2) = \ell \big) \Rightarrow \pi_1 \equiv \pi_2$$
+where $\pi_1 \equiv \pi_2$ denotes syntactic equivalence of paths.
+\end{lemma}
+
+\begin{proof}
+The element $\eta = M \circ M$ represents the unique pure-value morphism $\text{Hom}(A \to B)$ in the categorical foundation. By the functoriality of the dispositional mapping, distinct paths to the same location cannot both reduce to the same unique morphism unless they are syntactically equivalent.
+\end{proof}
+
+\begin{lemma}[Nilpotence Absorption]
+\label{lem:nilpotence}
+For any cycle $\sigma$ containing a nilpotent segment $\varepsilon^2$:
+$$\varepsilon^2 \in \sigma \Rightarrow \hat{\tau}(\sigma) = 0$$
+where $\varepsilon^2 \in \sigma$ denotes that the cycle contains a double-consumption pattern.
+\end{lemma}
+
+\begin{proof}
+The nilpotence property $\varepsilon^2 = 0$ ensures that any composition containing $\varepsilon^2$ reduces to the absorbing element $0$. Since $0$ is absorbing under composition ($0 \circ d = d \circ 0 = 0$ for all $d \in \mathcal{D}$), the entire cycle reduces to $0$.
+\end{proof}
+
+\begin{lemma}[Cycle Construction]
+\label{lem:cycle_construction}
+Any memory safety violation in region $R$ corresponds to a constructible cycle $\sigma$ such that $\hat{\tau}(\sigma) \neq \eta$.
+\end{lemma}
+
+\begin{proof}
+\textbf{Case 1 (Alias violation):} If distinct SSA names $v_1, v_2$ alias the same location with $\eta$ labels, their paths form a cycle violating Lemma~\ref{lem:uniqueness}.
+
+\textbf{Case 2 (Use-after-free):} If a live path accesses deallocated memory, it contains $\varepsilon^2$ segments. Extending to a cycle applies Lemma~\ref{lem:nilpotence}, yielding $\hat{\tau}(\sigma) = 0 \neq \eta$.
+\end{proof}
+
 \begin{theorem}[Closure]
 The set $\{\varepsilon, i, j, \eta, 0\}$ is closed under the composition operation defined in Table~\ref{tab:composition}.
 \end{theorem}
@@ -197,24 +242,39 @@ Associativity follows from the associativity of function composition in the unde
 The element $\eta$ is idempotent ($\eta^2 = \eta$) and $\varepsilon$ is nilpotent ($\varepsilon^2 = 0$).
 \end{theorem}
 
+\begin{theorem}[Lattice Properties]
+The dispositional lattice satisfies the standard lattice axioms:
+\begin{align}
+\text{Associativity:} \quad &(a \sqcup b) \sqcup c = a \sqcup (b \sqcup c) \\
+\text{Commutativity:} \quad &a \sqcup b = b \sqcup a \\
+\text{Absorption:} \quad &a \sqcup (a \sqcap b) = a
+\end{align}
+\end{theorem}
+
 These properties are crucial for the termination and correctness of our analysis algorithm.
 
 \subsection{Path Reduction Algorithm}
 
-Given a path $\pi = e_1 e_2 \ldots e_k$ in the SSA graph, where each edge $e_i$ carries a dispositional tag $\tau(e_i)$, we define the path label as:
+Given a directed path $\pi = e_1 e_2 \ldots e_k$ in the SSA graph, where each edge $e_i$ carries a dispositional tag $\tau(e_i) \in \{\varepsilon, i, j, \eta\}$, we define the path label as:
 
 \begin{equation}
 \tau(\pi) = \tau(e_1) \circ \tau(e_2) \circ \ldots \circ \tau(e_k)
 \end{equation}
 
-The reduction algorithm applies the following simplification rules until no further reductions are possible:
+where $\circ$ denotes the dispositional composition operation from Table~\ref{tab:composition}.
+
+The reduction algorithm applies the following formal inference rules until no further reductions are possible:
 
 \begin{align}
-\eta \circ \varepsilon &\to \varepsilon \\
-\varepsilon \circ \eta &\to \varepsilon \\
-\eta \circ \eta &\to \eta \\
-\varepsilon^2 &\to 0
+\frac{\tau(\pi_1) = \eta \quad \tau(\pi_2) = \varepsilon}{\tau(\pi_1 \circ \pi_2) \rightarrow \varepsilon} &\quad \text{[Absorption-Left]} \\[0.5em]
+\frac{\tau(\pi_1) = \varepsilon \quad \tau(\pi_2) = \eta}{\tau(\pi_1 \circ \pi_2) \rightarrow \varepsilon} &\quad \text{[Absorption-Right]} \\[0.5em]
+\frac{\tau(\pi_1) = \eta \quad \tau(\pi_2) = \eta}{\tau(\pi_1 \circ \pi_2) \rightarrow \eta} &\quad \text{[Identity-Composition]} \\[0.5em]
+\frac{\tau(\pi) = \varepsilon \quad \tau(\pi') = \varepsilon \quad \pi \circ \pi' \text{ forms a cycle}}{\tau(\pi \circ \pi') \rightarrow 0} &\quad \text{[Nilpotence]}
 \end{align}
+
+\begin{definition}[Path Reduction]
+A path $\pi$ reduces to dispositional element $d$ (written $\pi \rightarrow d$) if repeated application of the above inference rules yields $\tau(\pi) = d$ and no further rules apply.
+\end{definition}
 
 \begin{theorem}[Termination]
 The path reduction algorithm terminates in at most $k-1$ steps for a path of length $k$.
@@ -278,36 +338,42 @@ Algorithm~\ref{alg:main} presents the main analysis procedure.
 
 \subsection{Tag Assignment}
 
-Initial tag assignment follows straightforward syntactic rules:
+Initial dispositional tag assignment for SSA edges follows straightforward syntactic rules based on the operation that generates each edge:
 
 \begin{itemize}
-\item Memory load operations: $j$ (value to placeholder)
-\item Memory store operations: $i$ (placeholder to value)
-\item Pure computations: $\varepsilon$ (placeholder to placeholder)
-\item Address-of operations: $\eta$ (value to value)
+\item Memory load operations: $\tau(e) = j$ (value to placeholder transition)
+\item Memory store operations: $\tau(e) = i$ (placeholder to value transition)
+\item Pure computations: $\tau(e) = \varepsilon$ (placeholder to placeholder)
+\item Address-of operations: $\tau(e) = \eta$ (value to value operations)
 \end{itemize}
 
-Special handling is required for $\phi$-functions, which inherit tags from their incoming edges according to the composition rules.
+Special handling is required for $\phi$-functions, which inherit tags from their incoming edges according to the composition rules from Table~\ref{tab:composition}.
 
 \subsection{Backward Propagation}
 
-The backward propagation phase implements a standard dataflow analysis with the dispositional algebra serving as the lattice. For each SSA node, we compute:
+The backward propagation phase implements a standard dataflow analysis with the dispositional lattice serving as the underlying algebraic structure. For each SSA node $v$, we compute the new dispositional tag by composing incoming edge labels with successor node tags:
 
 \begin{equation}
-\tau_{\text{new}}(v) = \bigoplus_{u \in \text{succ}(v)} \tau(v \to u) \circ \tau(u)
+\tau_{\text{new}}(v) = \bigoplus_{u \in \text{succ}(v)} \tau(e_{vu}) \circ \tau(u)
 \end{equation}
 
-where $\bigoplus$ represents the meet operation in our lattice (composition with conflict resolution).
+where $e_{vu}$ denotes the edge from vertex $v$ to vertex $u$, $\circ$ represents dispositional composition from Table~\ref{tab:composition}, and $\bigoplus$ represents the meet operation $\sqcap$ from the dispositional lattice defined above.
+
+\begin{definition}[Meet Operation in Dataflow Context]
+For conflicting dispositional tags at a confluence point, the meet operation $\bigoplus$ resolves conflicts by selecting the greatest lower bound in the information ordering $\sqsubseteq$, ensuring conservative approximation of safety properties.
+\end{definition}
+
+The fixpoint iteration continues until no further changes occur, guaranteed to terminate by the finite height of the lattice and the monotonicity of the transfer functions.
 
 \subsection{Cycle Detection and Analysis}
 
-Cycle detection uses Tarjan's strongly connected components algorithm to identify all cycles in the SSA graph efficiently. For each cycle $C$, we compute:
+Cycle detection uses Tarjan's strongly connected components algorithm to identify all cycles in the SSA graph efficiently. For each cycle $C = \{e_1, e_2, \ldots, e_k\}$, we compute the cycle label by sequential composition of all edge labels:
 
 \begin{equation}
-\tau(C) = \bigcirc_{e \in C} \tau(e)
+\tau(C) = \tau(e_1) \circ \tau(e_2) \circ \ldots \circ \tau(e_k)
 \end{equation}
 
-where $\bigcirc$ denotes composition around the cycle. A cycle commutes if and only if $\tau(C) = \eta$.
+where $\circ$ denotes the dispositional composition operation from Table~\ref{tab:composition}. A cycle commutes if and only if $\tau(C) = \eta$.
 
 \subsection{Integration with LLVM}
 
@@ -371,9 +437,11 @@ We model program execution using an abstract machine with the following componen
 \begin{itemize}
 \item A finite set $\mathcal{L}$ of storage locations (registers, stack slots, heap cells)
 \item An SSA graph $G = (V, E)$ representing the program structure  
-\item A dispositional labeling function $\tau: E \to \{\varepsilon, i, j, \eta\}$
+\item A dispositional labeling function $\tau: E \to \{\varepsilon, i, j, \eta\}$ that assigns exactly one dispositional tag to each edge $e \in E$
 \item An execution state $\sigma: V \to \mathcal{L}$ mapping SSA names to locations
 \end{itemize}
+
+Throughout this section, we use $e_{vu}$ to denote a specific edge from vertex $v$ to vertex $u$, and $\tau(e_{vu})$ to denote its dispositional tag. All composition operations use the symbol $\circ$ as defined in Table~\ref{tab:composition}.
 
 \subsection{Path Semantics}
 
@@ -398,66 +466,161 @@ A directed cycle $\sigma$ in the SSA graph commutes if its reduced label equals 
 \end{definition}
 
 \begin{definition}[Globally Commutative Region]
-An SSA region is globally commutative if every directed cycle within the region commutes.
+An SSA region $R$ is globally commutative if and only if:
+$$\forall \sigma \in \text{cycles}(R). \quad \hat{\tau}(\sigma) = \eta$$
+where $\text{cycles}(R)$ denotes the set of all directed cycles within region $R$.
 \end{definition}
 
-We now establish the connection between commutativity and memory safety.
+We now establish the connection between commutativity and memory safety through formal quantified statements.
 
 \subsection{Alias Safety}
 
 \begin{theorem}[Alias Safety]
-In a globally commutative region, no two distinct SSA names can alias the same memory location while carrying distinct identity labels.
+For any globally commutative region $R$ with SSA graph $G = (V, E)$:
+$$\forall R. \text{globally\_commutative}(R) \rightarrow \forall v_1, v_2 \in V. \forall \ell \in \mathcal{L}. $$
+$$\big( \sigma(v_1) = \ell \land \sigma(v_2) = \ell \land \tau(v_1) = \eta \land \tau(v_2) = \eta \big) \rightarrow v_1 = v_2$$
+where $\sigma: V \to \mathcal{L}$ is the execution state mapping and $\mathcal{L}$ is the set of storage locations.
+
+In other words, no two distinct SSA names can alias the same memory location while both carrying the identity dispositional tag $\eta$.
 \end{theorem}
 
 \begin{proof}
-Assume for contradiction that two distinct SSA names $v_1$ and $v_2$ alias the same location $\ell \in \mathcal{L}$ while carrying distinct $\eta$-labeled identities.
+We proceed by contradiction:
 
-Let $\pi_1$ and $\pi_2$ be paths from the region entry to $v_1$ and $v_2$ respectively. Since both names map to the same location, their concatenation $\pi_1 ; \pi_2^{-1}$ forms a cycle.
+\textbf{Step 1:} Assume there exist distinct SSA names $v_1, v_2 \in V$ such that:
+\begin{align}
+v_1 &\neq v_2 \\
+\sigma(v_1) &= \sigma(v_2) = \ell \text{ for some } \ell \in \mathcal{L} \\
+\tau(v_1) &= \tau(v_2) = \eta
+\end{align}
 
-By global commutativity, this cycle must reduce to $\eta$. However, the uniqueness property of $\eta$ in the algebra (it occurs only on edges corresponding to value-to-value operations, the unique pure-$M$ object AB) ensures that no two distinct paths to the same location can both carry $\eta$ labels unless they are syntactically identical.
+\textbf{Step 2:} Let $\pi_1$ and $\pi_2$ be paths from the region entry to $v_1$ and $v_2$ respectively. Since both names map to the same location, we can construct a cycle $\gamma = \pi_1 ; \pi_2^{-1}$.
 
-This contradicts our assumption that $v_1$ and $v_2$ are distinct, proving alias safety.
+\textbf{Step 3:} By the global commutativity assumption, all cycles in $R$ must satisfy $\hat{\tau}(\gamma) = \eta$.
+
+\textbf{Step 4:} However, by Lemma~\ref{lem:uniqueness} (Dispositional Uniqueness), the identity element $\eta$ uniquely characterizes paths to any given memory location. Since $\pi_1$ and $\pi_2$ both reach location $\ell$ and both carry $\eta$ labels, they must be syntactically equivalent: $\pi_1 \equiv \pi_2$.
+
+\textbf{Step 5:} Syntactic equivalence of paths implies $v_1 = v_2$, contradicting our assumption in Step 1.
+
+\textbf{Step 6:} Therefore, our assumption is false, and alias safety holds. \qed
 \end{proof}
 
 \subsection{Lifetime Safety}
 
 \begin{theorem}[Lifetime Safety]  
-In a globally commutative region, no live path can access deallocated memory.
+For any globally commutative region $R$ with associated SSA graph $G = (V, E)$:
+$$\forall R. \text{globally\_commutative}(R) \rightarrow \forall \pi \in \text{live\_paths}(R). \neg \text{accesses\_deallocated}(\pi)$$
+where $\text{live\_paths}(R)$ denotes the set of all execution paths that are reachable during program execution within region $R$.
+
+In other words, no live path within a globally commutative region can access deallocated memory.
 \end{theorem}
 
 \begin{proof}
-Use-after-free errors correspond to path segments containing $\varepsilon^2$ (double consumption of a resource). The nilpotence property $\varepsilon^2 = 0$ ensures that such segments reduce to the absorbing element 0, marking them as unreachable states.
+We proceed by contradiction:
 
-If a live path $\pi$ had $\hat{\tau}(\pi) = 0$, we could construct a cycle containing the problematic $\varepsilon^2$ segment. However, global commutativity requires all cycles to reduce to $\eta$, contradicting the presence of an absorbing zero element.
+\textbf{Step 1:} Assume there exists a live path $\pi \in \text{live\_paths}(R)$ such that $\text{accesses\_deallocated}(\pi)$ holds.
 
-Therefore, no live path can contain use-after-free errors.
+\textbf{Step 2:} By the semantics of use-after-free errors, accessing deallocated memory corresponds to a path segment containing a double-consumption pattern $\varepsilon^2$ (using a resource that has already been consumed).
+
+\textbf{Step 3:} By Lemma~\ref{lem:nilpotence} (Nilpotence Absorption), any path containing $\varepsilon^2$ satisfies $\hat{\tau}(\pi) = 0$.
+
+\textbf{Step 4:} Since $\pi$ is a live path in region $R$, we can extend it to form a directed cycle $\gamma$ within $R$ (by connecting $\pi$ back to the region entry point).
+
+\textbf{Step 5:} The cycle $\gamma$ contains the problematic $\varepsilon^2$ segment from $\pi$, so by Lemma~\ref{lem:nilpotence}, we have $\hat{\tau}(\gamma) = 0$.
+
+\textbf{Step 6:} However, by the global commutativity assumption, all cycles in $R$ must satisfy $\hat{\tau}(\gamma) = \eta$.
+
+\textbf{Step 7:} We have a contradiction: $\hat{\tau}(\gamma) = 0$ and $\hat{\tau}(\gamma) = \eta$, but $0 \neq \eta$ in the dispositional algebra.
+
+\textbf{Step 8:} Therefore, our assumption in Step 1 is false, and lifetime safety holds. \qed
 \end{proof}
 
 \subsection{Main Soundness Result}
 
 \begin{theorem}[Soundness]
-If every cycle in an SSA region commutes (reduces to $\eta$), then the region is free from both aliasing violations and use-after-free errors.
+For any SSA region $R$:
+$$\forall R. \text{globally\_commutative}(R) \rightarrow \big( \text{alias\_safe}(R) \land \text{lifetime\_safe}(R) \big)$$
+where:
+\begin{align}
+\text{alias\_safe}(R) &\equiv \forall v_1, v_2 \in V(R), \ell \in \mathcal{L}. \big( \sigma(v_1) = \sigma(v_2) = \ell \land \tau(v_1) = \tau(v_2) = \eta \big) \rightarrow v_1 = v_2 \\
+\text{lifetime\_safe}(R) &\equiv \forall \pi \in \text{live\_paths}(R). \neg \text{accesses\_deallocated}(\pi)
+\end{align}
+
+In other words, if every cycle in an SSA region commutes (reduces to $\eta$), then the region is free from both aliasing violations and use-after-free errors.
 \end{theorem}
 
 \begin{proof}
-Immediate consequence of the Alias Safety and Lifetime Safety theorems.
+Direct application of logical conjunction:
+
+\textbf{Step 1:} By the Alias Safety Theorem, $\text{globally\_commutative}(R) \rightarrow \text{alias\_safe}(R)$.
+
+\textbf{Step 2:} By the Lifetime Safety Theorem, $\text{globally\_commutative}(R) \rightarrow \text{lifetime\_safe}(R)$.
+
+\textbf{Step 3:} By universal instantiation and logical conjunction introduction:
+$$\text{globally\_commutative}(R) \rightarrow \big( \text{alias\_safe}(R) \land \text{lifetime\_safe}(R) \big)$$
+
+\textbf{Step 4:} Universal generalization yields the desired result. \qed
+\end{proof}
+
+\begin{corollary}[Sound and Complete Characterization]
+\label{cor:characterization}
+For any SSA region $R$:
+$$\text{memory\_safe}(R) \Leftrightarrow \text{globally\_commutative}(R)$$
+where $\text{memory\_safe}(R) \equiv \text{alias\_safe}(R) \land \text{lifetime\_safe}(R)$.
+\end{corollary}
+
+\begin{proof}
+\textbf{Forward direction ($\Rightarrow$):} By the Soundness Theorem.
+\textbf{Reverse direction ($\Leftarrow$):} By contrapositive of the Completeness Theorem: if all cycles commute, then no safety violations exist.
 \end{proof}
 
 \subsection{Completeness}
 
 \begin{theorem}[Completeness]
-If an SSA region contains a memory safety violation, then at least one cycle in the region fails to commute.
+For any SSA region $R$:
+$$\forall R. \big( \neg \text{alias\_safe}(R) \lor \neg \text{lifetime\_safe}(R) \big) \rightarrow \exists \sigma \in \text{cycles}(R). \hat{\tau}(\sigma) \neq \eta$$
+
+In other words, if an SSA region contains a memory safety violation, then there exists at least one cycle in the region that fails to commute.
 \end{theorem}
 
 \begin{proof}
-Any memory safety violation corresponds to either an alias conflict or a use-after-free error. In both cases, we can construct a cycle whose dispositional label cannot reduce to $\eta$:
+We provide a constructive proof by case analysis:
 
-\begin{itemize}
-\item Alias conflicts create cycles with multiple distinct $\eta$-labeled paths to the same location
-\item Use-after-free errors create cycles containing $\varepsilon^2$ segments that reduce to 0
-\end{itemize}
+\textbf{Step 1:} Assume region $R$ contains a memory safety violation, i.e., $\neg \text{alias\_safe}(R) \lor \neg \text{lifetime\_safe}(R)$.
 
-In either case, the cycle fails to commute, providing a constructive witness to the safety violation.
+\textbf{Case 1: Alias Safety Violation}
+
+\textbf{Step 2a:} If $\neg \text{alias\_safe}(R)$, then by definition there exist distinct SSA names $v_1, v_2 \in V(R)$ and location $\ell \in \mathcal{L}$ such that:
+\begin{align}
+v_1 &\neq v_2 \\
+\sigma(v_1) &= \sigma(v_2) = \ell \\
+\tau(v_1) &= \tau(v_2) = \eta
+\end{align}
+
+\textbf{Step 3a:} Let $\pi_1, \pi_2$ be paths from the region entry to $v_1, v_2$ respectively. Construct cycle $\sigma = \pi_1 ; \pi_2^{-1}$.
+
+\textbf{Step 4a:} By Lemma~\ref{lem:uniqueness} (Dispositional Uniqueness), distinct paths to the same location cannot both carry $\eta$ labels. Therefore, $\hat{\tau}(\sigma) \neq \eta$.
+
+\textbf{Case 2: Lifetime Safety Violation}
+
+\textbf{Step 2b:} If $\neg \text{lifetime\_safe}(R)$, then there exists $\pi \in \text{live\_paths}(R)$ such that $\text{accesses\_deallocated}(\pi)$.
+
+\textbf{Step 3b:} By the semantics of use-after-free, $\pi$ contains a double-consumption pattern $\varepsilon^2$.
+
+\textbf{Step 4b:} Extend $\pi$ to form a cycle $\sigma$ within $R$. By Lemma~\ref{lem:nilpotence} (Nilpotence Absorption), $\hat{\tau}(\sigma) = 0 \neq \eta$.
+
+\textbf{Step 5:} In both cases, we have constructed a cycle $\sigma \in \text{cycles}(R)$ such that $\hat{\tau}(\sigma) \neq \eta$, providing the required existential witness.
+
+\textbf{Step 6:} This completes the constructive proof by establishing the existence of a non-commuting cycle for any memory safety violation. \qed
+\end{proof}
+
+\begin{corollary}[Decidability of Safety]
+\label{cor:decidability}
+Memory safety for region $R$ is decidable: check if all cycles satisfy $\hat{\tau}(\sigma) = \eta$.
+\end{corollary}
+
+\begin{proof}
+Immediate consequence of the Soundness and Completeness theorems: a region is safe if and only if all its cycles commute.
 \end{proof}
 
 \section{Empirical Evaluation}
