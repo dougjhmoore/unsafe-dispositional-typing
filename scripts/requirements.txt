@@ -1,5 +1,5 @@
 # Core dependencies for Dispositional Typing scalability analysis
-# IEEE TSE Paper: "Dispositional Typing: Eliminating Unsafe Annotations in C, C++, and Rust"
+# Paper: "Dispositional Typing: Eliminating Unsafe Annotations in C, C++, and Rust"
 
 numpy>=1.21.0
 matplotlib>=3.5.0

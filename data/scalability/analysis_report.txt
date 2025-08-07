@@ -1,24 +1,17 @@
+Slope (α)  :  0.940
+R²         : 0.9997
+Intercept  : -1.739
 
-Dispositional Typing Scalability Analysis Report
-==============================================
-
-Analysis Parameters:
-- Functions analyzed: 46
-- SSA edge range: 0 - 567
-- Base coefficient: 0.8 μs/edge
-
-Linear Regression Results:
-- Measured coefficient: 0.740 ± 0.028 μs/edge
-- Intercept: 9.01 μs
-- R² correlation: 0.9406
-- p-value: 1.30e-28
-
-Performance Characteristics:
-- Maximum analysis time: 411.2 μs
-- Time for largest function (567 edges): 411.2 μs
-- Linear complexity confirmed: O(n) with excellent fit
-
-Conclusion:
-The analysis demonstrates linear O(n) time complexity with a coefficient
-of approximately 0.7 microseconds per SSA edge, confirming
-the theoretical complexity analysis and practical scalability for production use.
+Raw data:
+N,time_ms
+100,1.3408679129070133
+251,3.470692204145507
+630,7.300246557895412
+1584,19.389478673058523
+3981,41.13978340686758
+10000,110.81026577577182
+25118,268.2973759975185
+63095,564.5596749276929
+158489,1372.6073005287308
+398107,3294.4242837049874
+1000000,7976.21531709559

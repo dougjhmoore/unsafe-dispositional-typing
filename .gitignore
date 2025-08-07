@@ -38,7 +38,7 @@ full_output.txt
 pass_output.txt
 
 # Generated analysis outputs
-/data/scalability/scalability_figure.png
+data/scalability/*.png   # ignore the intermediate PNG(s) but keep the JPEG
 /data/scalability/timing_data.csv
 /data/scalability/analysis_report.txt
 /data/scalability/tikz_coordinates.txt

@@ -1,10 +1,7 @@
 # Dispositional Typing: Eliminating Unsafe Annotations in C, C++, and Rust.
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.15734195.svg)](https://doi.org/10.5281/zenodo.15734195)
-
-
-**Reproducibility package for IEEE Transactions on Software Engineering paper:**  
-**"Dispositional Typing: Eliminating Unsafe Annotations in C, C++, and Rust"** by Douglas J. Huntington Moore.
+**Reproducibility package for  paper:**  
+**"Dispositional Typing: Eliminating Unsafe Annotations in C, C++, and Rust"** by Anonymous.
 
 ## 🎯 Key Claims
 
@@ -15,14 +12,11 @@
 
 ## 🚀 Reproduction (3 minutes total)
 
-> For a one-command Docker environment that rebuilds everything from
-> scratch, see **docs/reproduction/README.md**.> 
-
 ### Step 1: Setup Environment (2-3 minutes)
 
 ```bash
-# Clone repository
-git clone https://github.com/dougjhmoore/unsafe-dispositional-typing.git
+###################### Clone repository #####################
+git clone https://github.com/anonymouse
 cd unsafe-dispositional-typing
 
 # Setup Python environment
@@ -78,16 +72,16 @@ Linear Regression Results:
 └── docs/                          # Paper and documentation
 ```
 
-## 🎓 Citation
+## 📄 Citation (to be added after acceptance)
 
-```bibtex
-@article{moore2025dispositional,
-  title={Dispositional Typing: Eliminating Unsafe Annotations in C, C++, and Rust},
-  author={Moore, Douglas J. Huntington},
-  journal={IEEE Transactions on Software Engineering},
+```
+(citation details withheld for double-anonymous review)
+```
+
   year={2025},
-  doi={10.5281/zenodo.15734195}
+  doi={XX.XXX/zenodo.XXXXXXXX}
 }
+
 ```
 
 ## 📄 License
@@ -96,10 +90,11 @@ MIT License - see [LICENSE](LICENSE) for details.
 
 ---
 
-**Author**: Douglas J. Huntington Moore (djhmoore@alumni.unimelb.edu.au)  
-**Institution**: Independent Researcher  
-**Paper**: IEEE Transactions on Software Engineering, 2025
+**Author**: Anonymous (anon@anonymous.edu.au)  
+**Institution**: Anonomous  
+
 
 ## ❓ Questions?
 
 For reproduction issues or questions about the implementation, please open an issue in this repository.
+```
