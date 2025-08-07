@@ -1,5 +1,5 @@
 # Dispositional Typing Project Makefile
-# IEEE TSE 2025 Paper Implementation
+# 2025 Paper Implementation
 
 .PHONY: all setup clean test analysis evaluation help
 

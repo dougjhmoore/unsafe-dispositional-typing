@@ -10,8 +10,6 @@
 \usepackage{url}
 \usepackage{booktabs}
 \usepackage{balance}
-\usepackage{amsthm}
-\newtheorem{definition}{Definition}
 
 % Correct bad hyphenation here
 \hyphenation{op-tical net-works semi-conduc-tor}
@@ -152,8 +150,7 @@ This section formalizes the four-element algebra that forms the theoretical foun
 Let $\varepsilon$, $i$, $j$, $\eta$ denote the four canonical dispositional elements, where $F$ represents placeholder operations and $M$ represents value operations:
 
 \begin{align}
-\varepsilon &= F \circ F \quad \text{(XY) placeholder to placeholder, nilpotent,} \nonumber \\
-&\quad \varepsilon^2 = 0 \\
+\varepsilon &= F \circ F \quad \text{(XY) placeholder to placeholder, nilpotent, } \varepsilon^2 = 0 \\
 i &= F \circ M \quad \text{(YB) placeholder to value, } i^2 = -\eta \\
 j &= M \circ F \quad \text{(AX) value to placeholder, } j^2 = +\eta \\
 \eta &= M \circ M \quad \text{(AB) value to value, idempotent, } \eta^2 = \eta
@@ -195,10 +192,7 @@ The meet operation $\bigoplus$ used in our analysis is defined as the greatest l
 \begin{lemma}[Dispositional Uniqueness]
 \label{lem:uniqueness}
 The identity element $\eta$ uniquely characterizes value-to-value operations in the dispositional algebra. For any two distinct paths $\pi_1, \pi_2$ reaching the same memory location $\ell$:
-\begin{align}
-\big( \hat{\tau}(\pi_1) = \eta &\land \hat{\tau}(\pi_2) = \eta \nonumber \\
-&\land \text{target}(\pi_1) = \text{target}(\pi_2) = \ell \big) \Rightarrow \pi_1 \equiv \pi_2
-\end{align}
+$$\big( \hat{\tau}(\pi_1) = \eta \land \hat{\tau}(\pi_2) = \eta \land \text{target}(\pi_1) = \text{target}(\pi_2) = \ell \big) \Rightarrow \pi_1 \equiv \pi_2$$
 where $\pi_1 \equiv \pi_2$ denotes syntactic equivalence of paths.
 \end{lemma}
 
@@ -272,10 +266,10 @@ where $\circ$ denotes the dispositional composition operation from Table~\ref{ta
 The reduction algorithm applies the following formal inference rules until no further reductions are possible:
 
 \begin{align}
-&\frac{\tau(\pi_1) = \eta \quad \tau(\pi_2) = \varepsilon}{\tau(\pi_1 \circ \pi_2) \rightarrow \varepsilon} \quad \text{[Absorption-Left]} \\[0.5em]
-&\frac{\tau(\pi_1) = \varepsilon \quad \tau(\pi_2) = \eta}{\tau(\pi_1 \circ \pi_2) \rightarrow \varepsilon} \quad \text{[Absorption-Right]} \\[0.5em]
-&\frac{\tau(\pi_1) = \eta \quad \tau(\pi_2) = \eta}{\tau(\pi_1 \circ \pi_2) \rightarrow \eta} \quad \text{[Identity-Composition]} \\[0.5em]
-&\frac{\tau(\pi) = \varepsilon \quad \tau(\pi') = \varepsilon \quad \pi \circ \pi' \text{ forms a cycle}}{\tau(\pi \circ \pi') \rightarrow 0} \quad \text{[Nilpotence]}
+\frac{\tau(\pi_1) = \eta \quad \tau(\pi_2) = \varepsilon}{\tau(\pi_1 \circ \pi_2) \rightarrow \varepsilon} &\quad \text{[Absorption-Left]} \\[0.5em]
+\frac{\tau(\pi_1) = \varepsilon \quad \tau(\pi_2) = \eta}{\tau(\pi_1 \circ \pi_2) \rightarrow \varepsilon} &\quad \text{[Absorption-Right]} \\[0.5em]
+\frac{\tau(\pi_1) = \eta \quad \tau(\pi_2) = \eta}{\tau(\pi_1 \circ \pi_2) \rightarrow \eta} &\quad \text{[Identity-Composition]} \\[0.5em]
+\frac{\tau(\pi) = \varepsilon \quad \tau(\pi') = \varepsilon \quad \pi \circ \pi' \text{ forms a cycle}}{\tau(\pi \circ \pi') \rightarrow 0} &\quad \text{[Nilpotence]}
 \end{align}
 
 \begin{definition}[Path Reduction]
@@ -296,7 +290,7 @@ The dispositional algebra emerges naturally from categorical considerations. Eac
 
 \begin{itemize}
 \item $\varepsilon = F \circ F$: $\text{Hom}(X \to Y)$ represents pure placeholder operations
-\item $i = F \circ M$: $\text{Hom}(Y \to B)$ represents transitions from placeholder to value  
+\item $i = F \circ M$: $\text{Hom}(Y \to B)$ represents transitions from placeholder to value
 \item $j = M \circ F$: $\text{Hom}(A \to X)$ represents transitions from value to placeholder  
 \item $\eta = M \circ M$: $\text{Hom}(A \to B)$ represents direct value-to-value operations
 \end{itemize}
@@ -508,17 +502,14 @@ v_1 &\neq v_2 \\
 
 \textbf{Step 5:} Syntactic equivalence of paths implies $v_1 = v_2$, contradicting our assumption in Step 1.
 
-\textbf{Step 6:} Therefore, our assumption is false, and alias safety holds. 
+\textbf{Step 6:} Therefore, our assumption is false, and alias safety holds. \qed
 \end{proof}
 
 \subsection{Lifetime Safety}
 
 \begin{theorem}[Lifetime Safety]  
 For any globally commutative region $R$ with associated SSA graph $G = (V, E)$:
-\begin{multline}
-\forall R. \text{globally\_commutative}(R) \rightarrow \\
-\forall \pi \in \text{live\_paths}(R). \neg \text{accesses\_deallocated}(\pi)
-\end{multline}
+$$\forall R. \text{globally\_commutative}(R) \rightarrow \forall \pi \in \text{live\_paths}(R). \neg \text{accesses\_deallocated}(\pi)$$
 where $\text{live\_paths}(R)$ denotes the set of all execution paths that are reachable during program execution within region $R$.
 
 In other words, no live path within a globally commutative region can access deallocated memory.
@@ -541,25 +532,20 @@ We proceed by contradiction:
 
 \textbf{Step 7:} We have a contradiction: $\hat{\tau}(\gamma) = 0$ and $\hat{\tau}(\gamma) = \eta$, but $0 \neq \eta$ in the dispositional algebra.
 
-\textbf{Step 8:} Therefore, our assumption in Step 1 is false, and lifetime safety holds. 
+\textbf{Step 8:} Therefore, our assumption in Step 1 is false, and lifetime safety holds. \qed
 \end{proof}
 
 \subsection{Main Soundness Result}
 
 \begin{theorem}[Soundness]
 For any SSA region $R$:
-\begin{multline}
-\forall R. \text{globally\_commutative}(R) \rightarrow \\
-\big( \text{alias\_safe}(R) \land \text{lifetime\_safe}(R) \big)
-\end{multline}
+$$\forall R. \text{globally\_commutative}(R) \rightarrow \big( \text{alias\_safe}(R) \land \text{lifetime\_safe}(R) \big)$$
 where:
 \begin{align}
-\text{alias\_safe}(R) &\equiv \forall v_1, v_2 \in V(R), \ell \in \mathcal{L}. \nonumber \\
-&\quad \big( \sigma(v_1) = \sigma(v_2) = \ell \land \tau(v_1) = \tau(v_2) = \eta \big) \nonumber \\
-&\quad \rightarrow v_1 = v_2 \\
-\text{lifetime\_safe}(R) &\equiv \forall \pi \in \text{live\_paths}(R). \nonumber \\
-&\quad \neg \text{accesses\_deallocated}(\pi)
+\text{alias\_safe}(R) &\equiv \forall v_1, v_2 \in V(R), \ell \in \mathcal{L}. \big( \sigma(v_1) = \sigma(v_2) = \ell \land \tau(v_1) = \tau(v_2) = \eta \big) \rightarrow v_1 = v_2 \\
+\text{lifetime\_safe}(R) &\equiv \forall \pi \in \text{live\_paths}(R). \neg \text{accesses\_deallocated}(\pi)
 \end{align}
+
 In other words, if every cycle in an SSA region commutes (reduces to $\eta$), then the region is free from both aliasing violations and use-after-free errors.
 \end{theorem}
 
@@ -573,7 +559,7 @@ Direct application of logical conjunction:
 \textbf{Step 3:} By universal instantiation and logical conjunction introduction:
 $$\text{globally\_commutative}(R) \rightarrow \big( \text{alias\_safe}(R) \land \text{lifetime\_safe}(R) \big)$$
 
-\textbf{Step 4:} Universal generalization yields the desired result. 
+\textbf{Step 4:} Universal generalization yields the desired result. \qed
 \end{proof}
 
 \begin{corollary}[Sound and Complete Characterization]
@@ -592,9 +578,7 @@ where $\text{memory\_safe}(R) \equiv \text{alias\_safe}(R) \land \text{lifetime\
 
 \begin{theorem}[Completeness]
 For any SSA region $R$:
-$$\forall R. \big( \neg \text{alias\_safe}(R) \lor \neg \text{lifetime\_safe}(R) \big) \\
-\rightarrow$$
-$$ \exists \sigma \in \text{cycles}(R). \hat{\tau}(\sigma) \neq \eta$$
+$$\forall R. \big( \neg \text{alias\_safe}(R) \lor \neg \text{lifetime\_safe}(R) \big) \rightarrow \exists \sigma \in \text{cycles}(R). \hat{\tau}(\sigma) \neq \eta$$
 
 In other words, if an SSA region contains a memory safety violation, then there exists at least one cycle in the region that fails to commute.
 \end{theorem}
@@ -627,7 +611,7 @@ v_1 &\neq v_2 \\
 
 \textbf{Step 5:} In both cases, we have constructed a cycle $\sigma \in \text{cycles}(R)$ such that $\hat{\tau}(\sigma) \neq \eta$, providing the required existential witness.
 
-\textbf{Step 6:} This completes the constructive proof by establishing the existence of a non-commuting cycle for any memory safety violation. 
+\textbf{Step 6:} This completes the constructive proof by establishing the existence of a non-commuting cycle for any memory safety violation. \qed
 \end{proof}
 
 \begin{corollary}[Decidability of Safety]

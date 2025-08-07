@@ -2,6 +2,7 @@
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.15734195.svg)](https://doi.org/10.5281/zenodo.15734195)
 
+
 **Reproducibility package for IEEE Transactions on Software Engineering paper:**  
 **"Dispositional Typing: Eliminating Unsafe Annotations in C, C++, and Rust"** by Douglas J. Huntington Moore.
 
@@ -14,7 +15,11 @@
 
 ## 🚀 Reproduction (3 minutes total)
 
+> For a one-command Docker environment that rebuilds everything from
+> scratch, see **docs/reproduction/README.md**.> 
+
 ### Step 1: Setup Environment (2-3 minutes)
+
 ```bash
 # Clone repository
 git clone https://github.com/dougjhmoore/unsafe-dispositional-typing.git
@@ -27,12 +32,14 @@ pip install -r scripts/requirements.txt
 ```
 
 ### Step 2: Reproduce Figure 1 (30 seconds)
+
 ```bash
 # Run scalability analysis
 make analysis
 ```
 
 ### Step 3: Verify Results
+
 ```bash
 # Check generated files
 ls -la data/scalability/
@@ -52,6 +59,7 @@ The analysis should reproduce **Figure 1** from the paper with these characteris
 - **Statistical significance**: p-value < 1e-25
 
 **Sample output:**
+
 ```
 Linear Regression Results:
 - Measured coefficient: 0.740 ± 0.028 μs/edge
